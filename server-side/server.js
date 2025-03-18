@@ -22,7 +22,7 @@ const CHAT_BOT = "ChatBot"; // Add this
 // Listen for when the client connects via socket.io-client
 
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  console.log("A user connected" + socket.id);
 
   socket.on("disconnect", () => {
     console.log("A user disconnected");
@@ -34,11 +34,20 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_message", (data) => {
-    const { message, username } = data;
+    const { message, username, room } = data;
     // socket.to(data.room).emit("receive_message", data);
-    io.emit("receive_message", {
-      message,
-    });
+
+    if (room === "") {
+      socket.broadcast.emit("receive_message", {
+        message,
+      });
+      console.log("no room");
+    } else {
+      socket.to(room).emit("receive_message", {
+        message,
+      });
+      console.log(room);
+    }
   });
 
   socket.on("typing", (data) => socket.to(data.room).emit("typing", data));

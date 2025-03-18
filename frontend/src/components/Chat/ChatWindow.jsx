@@ -18,6 +18,7 @@ const AlloChat = ({ darkMode, socket }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [messageText, setMessageText] = useState("");
   const [messagesReceived, setMessagesReceived] = useState([]);
+  const [room, setRoom] = useState("");
 
   useEffect(() => {
     if (!socket) return;
@@ -36,6 +37,9 @@ const AlloChat = ({ darkMode, socket }) => {
 
     socket.on("connect", () => {
       console.log("Connected to socket server");
+      setMessagesReceived([
+        { message: "userjoined" + socket.id, username: "you" },
+      ]);
     });
 
     socket.on("disconnect", () => {
@@ -53,7 +57,8 @@ const AlloChat = ({ darkMode, socket }) => {
     if (messageText.trim()) {
       const messageData = {
         message: messageText,
-        username: "You",
+        username: socket.id,
+        room: room,
         __createdtime__: new Date().toLocaleTimeString(),
       };
 
@@ -84,6 +89,7 @@ const AlloChat = ({ darkMode, socket }) => {
           placeholder="Rechercher des conversations..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && setRoom()}
           className={`w-full pl-10 pr-4 py-2 rounded-lg ${
             darkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-black"
           }`}
@@ -102,6 +108,24 @@ const AlloChat = ({ darkMode, socket }) => {
       >
         (
         <>
+          {/* Room Area */}
+          <div>
+            <input
+              type="text"
+              placeholder="room"
+              value={room}
+              onChange={(e) => setRoom(e.target.value)}
+              className={`flex-1 p-2 rounded-lg ${
+                darkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-black"
+              }`}
+            />
+            <button
+              onClick={() => setRoom(room)}
+              className="p-2 rounded-full bg-purple-500 text-white hover:bg-purple-600"
+            >
+              asdasd
+            </button>
+          </div>
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messagesReceived.map((message, index) => (
@@ -118,6 +142,7 @@ const AlloChat = ({ darkMode, socket }) => {
                       : "bg-gray-200 text-black"
                   }`}
                 >
+                  <p className="font-semibold">{message.username}</p>
                   <p>{message.message}</p>
                   <p className="text-xs mt-1 text-gray-500">
                     {message.__createdtime__}
