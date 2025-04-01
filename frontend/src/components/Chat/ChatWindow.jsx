@@ -35,6 +35,41 @@ const AlloChat = ({ darkMode, socket }) => {
   const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
   const [username, setUsername] = useState(null);
+  const [savedMessages, setSavedMessage] = useState([]);
+
+  const saveMessages = async (data, messageDate) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("No token found");
+      window.location.href = "/login";
+      return;
+    }
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/message_save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          message: data.message, // Array of messages to store
+          username: data.username,
+          room: room,
+          timestamp: messageDate.toISOString(),
+        }),
+      });
+      console.log(data, messageDate);
+      if (response.ok) {
+        console.log("Messages saved successfully");
+        alert("Messages saved successfully");
+      } else {
+        console.error("Failed to save messages");
+      }
+    } catch (error) {
+      console.error("Error saving messages:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -134,7 +169,7 @@ const AlloChat = ({ darkMode, socket }) => {
         console.error("Invalid timestamp:", data.timestamp);
         return;
       }
-
+      saveMessages(data, messageDate);
       setMessagesReceived((prev) => [
         ...prev,
         {
@@ -314,6 +349,12 @@ const AlloChat = ({ darkMode, socket }) => {
                   >
                     {selectedGroup.name}
                   </h3>
+                  <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    onClick={saveMessages}
+                  >
+                    SAVE
+                  </button>
                 </div>
                 <div className="flex space-x-4">
                   <PhoneCall className="cursor-pointer text-gray-500 hover:text-purple-600" />
