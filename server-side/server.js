@@ -36,15 +36,20 @@ io.on("connection", (socket) => {
   socket.on("send_message", (data) => {
     const { message, username, room } = data;
     // socket.to(data.room).emit("receive_message", data);
+    const timestamp = new Date().toISOString();
 
     if (room === "") {
       socket.broadcast.emit("receive_message", {
         message,
+        username,
+        timestamp,
       });
       console.log("no room");
     } else {
       socket.to(room).emit("receive_message", {
         message,
+        username,
+        timestamp,
       });
       console.log(room);
     }
