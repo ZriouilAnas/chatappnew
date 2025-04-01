@@ -62,7 +62,6 @@ const AlloChat = ({ darkMode, socket }) => {
       console.log(data, messageDate);
       if (response.ok) {
         console.log("Messages saved successfully");
-        alert("Messages saved successfully");
       } else {
         console.error("Failed to save messages");
       }
